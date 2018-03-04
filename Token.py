@@ -66,6 +66,9 @@ class Interpreter(object):
                 self.advance()
                 return Token(DIV, self.current_char)
 
+            self.error()
+        return Token(EOF, None)
+
 
     def eat(self, type):
         if self.current_token.type == type:
@@ -73,33 +76,48 @@ class Interpreter(object):
         else:
             self.error()
 
+    def term(self):
+        token = self.current_token
+        self.eat(INTEGER)
+        return token.value
+
     def expr(self):
         self.current_token = self.get_next_token()
 
-        left = self.current_token
-        self.eat(INTEGER)
+        result = self.term()
+        while self.current_token.type in (PLUS, MINUS):
+            token = self.current_token
+            if token.type == PLUS:
+                self.eat(PLUS)
+                result = result + self.term()
+            elif token.type == MINUS:
+                self.eat(MINUS)
+                result = result - self.term()
 
-        op = self.current_token
-        if op.type == PLUS:
-            self.eat(PLUS)
-        elif op.type == MINUS:
-            self.eat(MINUS)
-        elif op.type == MUTL:
-            self.eat(MUTL)
-        elif op.type == DIV:
-            self.eat(DIV)
-
-        right = self.current_token
-        self.eat(INTEGER)
-
-        if op.type == PLUS:
-            result = left.value + right.value
-        elif op.type == MINUS:
-            result = left.value - right.value
-        elif op.type == MUTL:
-            result = left.value * right.value
-        elif op.type == DIV:
-            result = left.value / right.value
+        # left = self.current_token
+        # self.eat(INTEGER)
+        #
+        # op = self.current_token
+        # if op.type == PLUS:
+        #     self.eat(PLUS)
+        # elif op.type == MINUS:
+        #     self.eat(MINUS)
+        # elif op.type == MUTL:
+        #     self.eat(MUTL)
+        # elif op.type == DIV:
+        #     self.eat(DIV)
+        #
+        # right = self.current_token
+        # self.eat(INTEGER)
+        #
+        # if op.type == PLUS:
+        #     result = left.value + right.value
+        # elif op.type == MINUS:
+        #     result = left.value - right.value
+        # elif op.type == MUTL:
+        #     result = left.value * right.value
+        # elif op.type == DIV:
+        #     result = left.value / right.value
         return result
 
 def main():

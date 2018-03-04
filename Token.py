@@ -85,14 +85,24 @@ class Interpreter(object):
         self.current_token = self.get_next_token()
 
         result = self.term()
-        while self.current_token.type in (PLUS, MINUS):
+        # while self.current_token.type in (PLUS, MINUS):
+        #     token = self.current_token
+        #     if token.type == PLUS:
+        #         self.eat(PLUS)
+        #         result = result + self.term()
+        #     elif token.type == MINUS:
+        #         self.eat(MINUS)
+        #         result = result - self.term()
+
+        while self.current_token.type in (MUTL, DIV):
             token = self.current_token
-            if token.type == PLUS:
-                self.eat(PLUS)
-                result = result + self.term()
-            elif token.type == MINUS:
-                self.eat(MINUS)
-                result = result - self.term()
+            if token.type == MUTL:
+                self.eat(MUTL)
+                result = result * self.term()
+            elif token.type == DIV:
+                self.eat(DIV)
+                result = result / self.term()
+
 
         # left = self.current_token
         # self.eat(INTEGER)

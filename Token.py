@@ -1,5 +1,5 @@
 
-INTEGER, PLUS, MINUS, MUTL, DIV, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MUTL', 'DIV','EOF'
+INTEGER, PLUS, MINUS, MUL, DIV, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV','EOF'
 
 class Token(object):
     def __init__(self, type, value):
@@ -60,7 +60,7 @@ class Interpreter(object):
 
             if self.current_char == '*':
                 self.advance()
-                return Token(MUTL, self.current_char)
+                return Token(MUL, self.current_char)
 
             if self.current_char == '/':
                 self.advance()
@@ -69,6 +69,9 @@ class Interpreter(object):
             self.error()
         return Token(EOF, None)
 
+
+    def factor(self):
+        self.eat(INTEGER)
 
     def eat(self, type):
         if self.current_token.type == type:
@@ -82,6 +85,17 @@ class Interpreter(object):
         return token.value
 
     def expr(self):
+        self.factor()
+
+        while self.current_token.type in (MUL, DIV):
+            token = self.current_token
+            if token.type == MUL:
+                self.eat(MUL)
+                self.factor()
+            elif token.type == DIV:
+                self.eat(DIV)
+                self.factor()
+
         self.current_token = self.get_next_token()
 
         result = self.term()
@@ -94,10 +108,10 @@ class Interpreter(object):
         #         self.eat(MINUS)
         #         result = result - self.term()
 
-        while self.current_token.type in (MUTL, DIV):
+        while self.current_token.type in (MUL, DIV):
             token = self.current_token
-            if token.type == MUTL:
-                self.eat(MUTL)
+            if token.type == MUL:
+                self.eat(MUL)
                 result = result * self.term()
             elif token.type == DIV:
                 self.eat(DIV)
@@ -112,8 +126,8 @@ class Interpreter(object):
         #     self.eat(PLUS)
         # elif op.type == MINUS:
         #     self.eat(MINUS)
-        # elif op.type == MUTL:
-        #     self.eat(MUTL)
+        # elif op.type == MUL:
+        #     self.eat(MUL)
         # elif op.type == DIV:
         #     self.eat(DIV)
         #
@@ -124,7 +138,7 @@ class Interpreter(object):
         #     result = left.value + right.value
         # elif op.type == MINUS:
         #     result = left.value - right.value
-        # elif op.type == MUTL:
+        # elif op.type == MUL:
         #     result = left.value * right.value
         # elif op.type == DIV:
         #     result = left.value / right.value
